@@ -4,7 +4,7 @@
 volatile FIFO FifoRx;
 
 //------------------------------------------------------------------------------
-ISR(USART_RX_vect) {//96
+ISR(USART_RX_vect) {
   if((FifoRx.tail + 1) % FIFO_SIZE != FifoRx.head)
     FifoRx.buff[FifoRx.tail = ++FifoRx.tail % FIFO_SIZE] = UDR0;
 }
@@ -13,7 +13,7 @@ uint32_t pow_bwl(uint32_t base, uint8_t expo) {
   return (expo?base*pow_bwl(base,expo-1):1);
 }
 //------------------------------------------------------------------------------
-void miniserial::data_(uint32_t val, uint8_t bwl, uint8_t base=DEC, uint8_t zero=false) {//108
+void MiniSerial_data_(uint32_t val, uint8_t bwl, uint8_t base=DEC, uint8_t zero=false) {
   uint8_t len;
   switch (base) {
     case BIN : len=bwl?(--bwl?32:16):8; break;
@@ -33,30 +33,30 @@ void miniserial::data_(uint32_t val, uint8_t bwl, uint8_t base=DEC, uint8_t zero
   }
 }
 //------------------------------------------------------------------------------
-void miniserial::print_(const __FlashStringHelper *ifsh) {//12
+void MiniSerial_print_(const __FlashStringHelper *ifsh) {
   const char * __attribute__((progmem)) p = (const char * ) ifsh;
   while (unsigned char c = pgm_read_byte(p++)) {
     MiniSerial_write(c);
   }
 }
 //------------------------------------------------------------------------------
-void miniserial::write_(uint8_t b) {//130
+void MiniSerial_write_(uint8_t b) {
   while (((1 << UDRIE0) & UCSR0B) || !(UCSR0A & (1 << UDRE0))) {}
   UDR0 = b;
 }
 //------------------------------------------------------------------------------
-uint8_t miniserial::read_() {//150
+uint8_t MiniSerial_read_() {
   if(FifoRx.tail == FifoRx.head) return 0;
   uint8_t data = FifoRx.buff[FifoRx.head];
   FifoRx.head = ++FifoRx.head % FIFO_SIZE;
   return data;
 }
 //------------------------------------------------------------------------------
-uint8_t miniserial::available_() {//116
+uint8_t MiniSerial_available_() {
   return ((FifoRx.tail - FifoRx.head + FIFO_SIZE) % FIFO_SIZE);
 }
 //------------------------------------------------------------------------------
-void miniserial::begin_(uint32_t baud) {//34
+void MiniSerial_begin_(uint32_t baud) {
   FifoRx.head = FifoRx.tail = 0;
 
   uint16_t baud_setting;
